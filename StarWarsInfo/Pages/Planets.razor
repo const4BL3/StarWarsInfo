@@ -1,0 +1,120 @@
+﻿@page "/planets"
+
+@inject IHttpClientFactory _clientFactory
+
+<h3>Planets of Star Wars</h3>
+
+@if (string.IsNullOrWhiteSpace(errorString) == false)
+{
+    <div class="h2">@errorString</div>
+}
+else if (planets is null)
+{
+    <div class="h4">Loading...</div>
+}
+else
+{
+    <input type="text" @bind-value="@searchTerm" />
+    <input type="button" value="Search" @onclick=@SearchPlanets />
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Characters</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var w in planets.Results)
+            {
+                <tr>
+                    <td><a href="planet/@w.Id">@w.name</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div id="paging">
+        @if (!string.IsNullOrEmpty(@planets.Previous))
+        {
+            <button @onclick=PreviousPage>Previous</button>
+        }
+
+        @if (!string.IsNullOrEmpty(@planets.Next))
+        {
+            <button @onclick=NextPage>Next</button>
+        }
+    </div>
+}
+
+@code {
+    PlanetsModel planets;
+    string errorString;
+    private string searchTerm;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var client = _clientFactory.CreateClient("SWAPI");
+        try
+        {
+            planets = await client.GetFromJsonAsync<PlanetsModel>("planets/");
+            errorString = " ";
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { exc.Message }";
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+
+        string paging = planets.Previous.Replace("http://swapi.dev/api/planets/", String.Empty);
+        string endpoint = String.Format("planets/{0}", paging);
+        try
+        {
+            planets = await client.GetFromJsonAsync<PlanetsModel>(endpoint);
+            errorString = " ";
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { exc.Message }";
+        }
+
+    }
+    private async Task NextPage()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+
+        string paging = planets.Next.Replace("http://swapi.dev/api/planets/", String.Empty);
+        string endpoint = String.Format("planets/{0}", paging);
+        try
+        {
+            planets = await client.GetFromJsonAsync<PlanetsModel>(endpoint);
+            errorString = " ";
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { exc.Message }";
+        }
+
+    }
+
+
+    private async Task SearchPlanets()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+
+        string search = String.Format("?search={0}", searchTerm);
+        string endpoint = String.Format("planets/{0}", search);
+        try
+        {
+            planets = await client.GetFromJsonAsync<PlanetsModel>(endpoint);
+            errorString = " ";
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { exc.Message }";
+        }
+
+    }
+}

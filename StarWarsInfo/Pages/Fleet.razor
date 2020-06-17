@@ -1,0 +1,120 @@
+﻿@page "/fleet"
+
+@inject IHttpClientFactory _clientFactory
+
+<h3>Starships of Star Wars</h3>
+
+@if (string.IsNullOrWhiteSpace(errorString) == false)
+{
+    <div class="h2">@errorString</div>
+}
+else if (starship is null)
+{
+    <div class="h4">Loading...</div>
+}
+else
+{
+    <input type="text" @bind-value="@searchTerm" />
+    <input type="button" value="Search" @onclick=@Searchstarship />
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Characters</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var w in starship.Results)
+            {
+                <tr>
+                    <td><a href="starship/@w.Id">@w.name</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div id="paging">
+        @if (!string.IsNullOrEmpty(@starship.Previous))
+        {
+            <button @onclick=PreviousPage>Previous</button>
+        }
+
+        @if (!string.IsNullOrEmpty(@starship.Next))
+        {
+            <button @onclick=NextPage>Next</button>
+        }
+    </div>
+}
+
+@code {
+    FleetModel starship;
+    string errorString;
+    private string searchTerm;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var client = _clientFactory.CreateClient("SWAPI");
+        try
+        {
+            starship = await client.GetFromJsonAsync<FleetModel>("starships/");
+            errorString = " ";
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { exc.Message }";
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+
+        string paging = starship.Previous.Replace("http://swapi.dev/api/starships/", String.Empty);
+        string endpoint = String.Format("starship/{0}", paging);
+        try
+        {
+            starship = await client.GetFromJsonAsync<FleetModel>(endpoint);
+            errorString = " ";
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { exc.Message }";
+        }
+
+    }
+    private async Task NextPage()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+
+        string paging = starship.Next.Replace("http://swapi.dev/api/starships/", String.Empty);
+        string endpoint = String.Format("starships/{0}", paging);
+        try
+        {
+            starship = await client.GetFromJsonAsync<FleetModel>(endpoint);
+            errorString = " ";
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { exc.Message }";
+        }
+
+    }
+
+
+    private async Task Searchstarship()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+
+        string search = String.Format("?search={0}", searchTerm);
+        string endpoint = String.Format("starships/{0}", search);
+        try
+        {
+            starship = await client.GetFromJsonAsync<FleetModel>(endpoint);
+            errorString = " ";
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { exc.Message }";
+        }
+
+    }
+}

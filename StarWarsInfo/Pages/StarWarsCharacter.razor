@@ -1,0 +1,81 @@
+﻿@page "/starwarscharacter"
+@page "/starwarscharacter/{Id}"
+
+<h3>StarWarsCharacter</h3>
+
+@inject IHttpClientFactory _clientFactory
+
+@if (string.IsNullOrWhiteSpace(errorString) == false)
+{
+    <div class="h2">@errorString</div>
+}
+else if (detail is null)
+{
+    <div class="h4">Loading...</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Height</th>
+                <th>Hair Color</th>
+                <th>Gender</th>
+                <th>Created Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@detail.name</td>
+                <td>@detail.height</td>
+                <td>@detail.hair_color</td>
+                <td>@detail.gender</td>
+                <td>@detail.created.ToString("yyyy-MM-dd")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    if (starships.Count>0)
+    {
+        <h4>Starships Flown</h4>
+        foreach (var ship in starships)
+        {
+            <div id="ship"><a href="starship/@ship.Id">@ship.name</a></div>
+        }
+    }
+
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    CharacterModel detail;
+    List<StarshipModel> starships = new List<StarshipModel>();
+    string errorString;
+    string endpoint;
+    protected override async Task OnInitializedAsync()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+        try
+        {
+            endpoint = String.Format("people/{0}/", Id);
+            detail = await client.GetFromJsonAsync<CharacterModel>(endpoint);
+            if (detail.starships.Length > 0)
+            {
+                foreach (var shipAddress in detail.starships)
+                {
+                    endpoint = String.Format("starships/{0}", shipAddress.Replace("http://swapi.dev/api/starships/", String.Empty));
+                    StarshipModel ship = await client.GetFromJsonAsync<StarshipModel>(endpoint);
+                    starships.Add(ship);
+                }
+            }
+            errorString = String.Empty;
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { client.BaseAddress.ToString() + endpoint + ", " + exc.Message}";
+        }
+    }
+}

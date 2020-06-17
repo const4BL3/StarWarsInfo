@@ -1,0 +1,81 @@
+﻿@page "/planet"
+@page "/planet/{Id}"
+
+@inject IHttpClientFactory _clientFactory
+
+<h3>Planet of Star Wars</h3>
+
+@if (string.IsNullOrWhiteSpace(errorString) == false)
+{
+    <div class="h2">@errorString</div>
+}
+else if (detail is null)
+{
+    <div class="h4">Loading...</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Climate</th>
+                <th>Population</th>
+                <th>Terrain</th>
+                <th>Created Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@detail.name</td>
+                <td>@detail.climate</td>
+                <td>@detail.population</td>
+                <td>@detail.terrain</td>
+                <td>@detail.created.ToString("yyyy-MM-dd")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    if (detail.residents.Length > 0)
+    {
+        <h4>Lived On By</h4>
+        foreach (var resident in residents)
+        {
+            <div class="resident"><a href="starwarscharacter/@resident.Id">@resident.name</a></div>
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    PlanetModel detail;
+
+    List<CharacterModel> residents = new List<CharacterModel>();
+    string errorString;
+    string endpoint;
+    protected override async Task OnInitializedAsync()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+        try
+        {
+            endpoint = String.Format("planets/{0}/", Id);
+            detail = await client.GetFromJsonAsync<PlanetModel>(endpoint);
+            if (detail.residents.Length > 0)
+            {
+                foreach (var residentAddress in detail.residents)
+                {
+                    endpoint = String.Format("people/{0}", residentAddress.Replace("http://swapi.dev/api/people/", String.Empty));
+                    CharacterModel pilot = await client.GetFromJsonAsync<CharacterModel>(endpoint);
+                    residents.Add(pilot);
+                }
+            }
+            errorString = String.Empty;
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { client.BaseAddress.ToString() + endpoint + ", " + exc.Message}";
+        }
+    }
+}
+
