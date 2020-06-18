@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace StarWarsInfo.Models
 {
@@ -21,6 +18,6 @@ namespace StarWarsInfo.Models
         public DateTime created { get; set; }
         public DateTime edited { get; set; }
         public string url { get; set; }
-        public string Id { get => url.Replace("http://swapi.dev/api/planets/", String.Empty); }
+        public string Id => url.Replace("http://swapi.dev/api/planets/", string.Empty);
     }
 }
