@@ -15,4 +15,5 @@ Steps to build and run StarWarsInfo
 
 The site is currently hosted on Azure App Services
 > Windows at https://starwarsinfo20200616115351.azurewebsites.net/
+
 > Linux at https://starwarsinfo20200617231707nix.azurewebsites.net/
