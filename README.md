@@ -13,5 +13,6 @@ Steps to build and run StarWarsInfo
 > Pressing F6 will build the necessary files for deployment
 >> Pressing F5 will build the necessary files and run it in debug mode.
 
-The site is currently hosted on Azure at
-https://starwarsinfo20200616115351.azurewebsites.net/
+The site is currently hosted on Azure App Services
+> Windows at https://starwarsinfo20200616115351.azurewebsites.net/
+> Linux at https://starwarsinfo20200617231707nix.azurewebsites.net/
