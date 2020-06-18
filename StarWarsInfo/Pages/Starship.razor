@@ -3,79 +3,79 @@
 
 @inject IHttpClientFactory _clientFactory
 
-    <h3>Starship of Star Wars</h3>
+<h3>Starship of Star Wars</h3>
 
-    @if (string.IsNullOrWhiteSpace(errorString) == false)
-    {
-        <div class="h2">@errorString</div>
-    }
-    else if (detail is null)
-    {
-        <div class="h4">Loading...</div>
-    }
-    else
-    {
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Hyperdrive Rating</th>
-                    <th>Manufacturer</th>
-                    <th>Starship Class</th>
-                    <th>Created Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>@detail.name</td>
-                    <td>@detail.hyperdrive_rating</td>
-                    <td>@detail.manufacturer</td>
-                    <td>@detail.starship_class</td>
-                    <td>@detail.created.ToString("yyyy-MM-dd")</td>
-                </tr>
-            </tbody>
-        </table>
+@if (string.IsNullOrEmpty(errorString) == false)
+{
+    <div class="h2">@errorString</div>
+}
+else if (detail is null)
+{
+    <div class="h4">Loading...</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Hyperdrive Rating</th>
+                <th>Manufacturer</th>
+                <th>Starship Class</th>
+                <th>Created Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@detail.name</td>
+                <td>@detail.hyperdrive_rating</td>
+                <td>@detail.manufacturer</td>
+                <td>@detail.starship_class</td>
+                <td>@detail.created.ToString("yyyy-MM-dd")</td>
+            </tr>
+        </tbody>
+    </table>
 
-        if (detail.pilots.Length > 0)
-        { 
-            <h4>Piloted By</h4>
-            foreach (var pilot in pilots)
-            {
-            <div class="pilot"><a href="starwarscharacter/@pilot.Id">@pilot.name</a></div>
-            }
-        }
-    }
-
-    @code {
-        [Parameter]
-        public string Id { get; set; }
-        StarshipModel detail;
-        List<CharacterModel> pilots = new List<CharacterModel>();
-        string errorString;
-        string endpoint;
-        protected override async Task OnInitializedAsync()
+    if (detail.pilots.Length > 0)
+    {
+        <h4>Piloted By</h4>
+        foreach (var pilot in pilots)
         {
-            var client = _clientFactory.CreateClient("SWAPI");
-            try
-            {
-                endpoint = String.Format("starships/{0}/", Id);
-                detail = await client.GetFromJsonAsync<StarshipModel>(endpoint);
-                if (detail.pilots.Length > 0)
-                {
-                    foreach (var pilotAddress in detail.pilots)
-                    {
-                        endpoint = String.Format("people/{0}", pilotAddress.Replace("http://swapi.dev/api/people/", String.Empty));
-                        CharacterModel pilot = await client.GetFromJsonAsync<CharacterModel>(endpoint);
-                        pilots.Add(pilot);
-                    }
-                }
-
-                errorString = String.Empty;
-            }
-            catch (Exception exc)
-            {
-                errorString = $"These are not the droids you're looking for: { client.BaseAddress.ToString() + endpoint + ", " + exc.Message}";
-            }
+            <div class="pilot"><a href="starwarscharacter/@pilot.Id">@pilot.name</a></div>
         }
     }
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    StarshipModel detail;
+    List<CharacterModel> pilots = new List<CharacterModel>();
+    string errorString = String.Empty;
+    string endpoint;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = _clientFactory.CreateClient("SWAPI");
+        try
+        {
+            endpoint = String.Format("starships/{0}/", Id);
+            detail = await client.GetFromJsonAsync<StarshipModel>(endpoint);
+            if (detail.pilots.Length > 0)
+            {
+                foreach (var pilotAddress in detail.pilots)
+                {
+                    endpoint = String.Format("people/{0}", pilotAddress.Replace("http://swapi.dev/api/people/", String.Empty));
+                    CharacterModel pilot = await client.GetFromJsonAsync<CharacterModel>(endpoint);
+                    pilots.Add(pilot);
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            errorString = $"These are not the droids you're looking for: { client.BaseAddress.ToString() + endpoint + ", " + exc.Message}";
+        }
+        errorString = String.Empty;
+    }
+}
 

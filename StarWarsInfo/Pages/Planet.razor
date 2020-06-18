@@ -5,7 +5,7 @@
 
 <h3>Planet of Star Wars</h3>
 
-@if (string.IsNullOrWhiteSpace(errorString) == false)
+@if (string.IsNullOrEmpty(errorString) == false)
 {
     <div class="h2">@errorString</div>
 }
@@ -50,10 +50,10 @@ else
     [Parameter]
     public string Id { get; set; }
     PlanetModel detail;
-
     List<CharacterModel> residents = new List<CharacterModel>();
-    string errorString;
+    string errorString = String.Empty;
     string endpoint;
+
     protected override async Task OnInitializedAsync()
     {
         var client = _clientFactory.CreateClient("SWAPI");
@@ -70,12 +70,12 @@ else
                     residents.Add(pilot);
                 }
             }
-            errorString = String.Empty;
         }
         catch (Exception exc)
         {
             errorString = $"These are not the droids you're looking for: { client.BaseAddress.ToString() + endpoint + ", " + exc.Message}";
         }
+        errorString = String.Empty;
     }
 }
 

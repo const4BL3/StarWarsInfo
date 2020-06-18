@@ -5,7 +5,7 @@
 
 @inject IHttpClientFactory _clientFactory
 
-@if (string.IsNullOrWhiteSpace(errorString) == false)
+@if (string.IsNullOrEmpty(errorString) == false)
 {
     <div class="h2">@errorString</div>
 }
@@ -44,17 +44,16 @@ else
             <div id="ship"><a href="starship/@ship.Id">@ship.name</a></div>
         }
     }
-
 }
 
 @code {
     [Parameter]
     public string Id { get; set; }
-
     CharacterModel detail;
     List<StarshipModel> starships = new List<StarshipModel>();
-    string errorString;
+    string errorString = String.Empty;
     string endpoint;
+
     protected override async Task OnInitializedAsync()
     {
         var client = _clientFactory.CreateClient("SWAPI");
@@ -71,11 +70,11 @@ else
                     starships.Add(ship);
                 }
             }
-            errorString = String.Empty;
         }
         catch (Exception exc)
         {
             errorString = $"These are not the droids you're looking for: { client.BaseAddress.ToString() + endpoint + ", " + exc.Message}";
         }
+        errorString = String.Empty;
     }
 }

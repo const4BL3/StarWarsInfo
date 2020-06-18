@@ -4,7 +4,7 @@
 
 <h3>People of Star Wars</h3>
 
-@if (string.IsNullOrWhiteSpace(errorString) == false)
+@if (!string.IsNullOrEmpty(errorString))
 {
     <div class="h2">@errorString</div>
 }
@@ -46,74 +46,68 @@ else
 
 @code {
     PeopleModel people;
-    string errorString;
+    string errorString = String.Empty;
     private string searchTerm;
-
 
     protected override async Task OnInitializedAsync()
     {
-
         var client = _clientFactory.CreateClient("SWAPI");
         try
         {
             people = await client.GetFromJsonAsync<PeopleModel>("people/");
-            errorString = " ";
         }
         catch (Exception exc)
         {
             errorString = $"These are not the droids you're looking for: { exc.Message }";
         }
+        errorString = String.Empty;
     }
+
     private async Task PreviousPage()
     {
         var client = _clientFactory.CreateClient("SWAPI");
-
         string paging = people.Previous.Replace("http://swapi.dev/api/people/", String.Empty);
         string endpoint = String.Format("people/{0}", paging);
         try
         {
             people = await client.GetFromJsonAsync<PeopleModel>(endpoint);
-            errorString = " ";
         }
         catch (Exception exc)
         {
             errorString = $"These are not the droids you're looking for: { exc.Message }";
         }
-
+        errorString = String.Empty;
     }
+
     private async Task NextPage()
     {
         var client = _clientFactory.CreateClient("SWAPI");
-
         string paging = people.Next.Replace("http://swapi.dev/api/people/", String.Empty);
         string endpoint = String.Format("people/{0}", paging);
         try
         {
             people = await client.GetFromJsonAsync<PeopleModel>(endpoint);
-            errorString = " ";
         }
         catch (Exception exc)
         {
             errorString = $"These are not the droids you're looking for: { exc.Message }";
         }
-
+        errorString = String.Empty;
     }
 
     private async Task SearchPeople()
     {
         var client = _clientFactory.CreateClient("SWAPI");
-
         string search = String.Format("?search={0}", searchTerm);
         string endpoint = String.Format("people/{0}", search);
         try
         {
             people = await client.GetFromJsonAsync<PeopleModel>(endpoint);
-            errorString = " ";
         }
         catch (Exception exc)
         {
             errorString = $"These are not the droids you're looking for: { exc.Message }";
         }
-
+        errorString = String.Empty;
     }
 }
