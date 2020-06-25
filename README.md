@@ -17,3 +17,6 @@ The site is currently hosted on Azure App Services
 > Windows at https://starwarsinfo20200616115351.azurewebsites.net/
 
 > Linux at https://starwarsinfo20200617231707nix.azurewebsites.net/
+
+This site is also hosted on AWS
+> Linux at http://starwarsinfo-dev.us-east-2.elasticbeanstalk.com/

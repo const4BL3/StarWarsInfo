@@ -353,3 +353,4 @@ MigrationBackup/
 # Also Ignore
 launch.json
 tasks.json
+StarWarsInfo/aws-beanstalk-tools-defaults.json
