@@ -20,3 +20,6 @@ The site is currently hosted on Azure App Services
 
 This site is also hosted on AWS
 > Linux at http://starwarsinfo-dev.us-east-2.elasticbeanstalk.com/
+>> The EC2 is stopped as there is a cost to run it full time.  Demonstration on request.
+
+Contact info https://linkedin.com/in/cjbii
